@@ -6,22 +6,32 @@ import pandas as pd
 import numpy as np
 
 class APIStuff:
-    """
-    A class for handling the API.
-    Attributes:
-    - url (str): The url for the API.
-    """
     def __init__(self, url):
+        '''
+        Parameters
+        ----------
+        url : STR
+            URL for API.
+
+        Returns
+        -------
+        None.
+        '''
         self.url = url
     def get_data(self, headers, params):
-        """
-        Uses headers and params to return API data.
-        Parameters:
-        - headers (str): header that holds API keys.
-        - params (str): params for the API query.
-        Returns:
-        response.json(): JSON data using the params and header with the API.
-        """
+        '''
+        Parameters
+        ----------
+        headers : STR
+            Headers for API.
+        params : STR
+            Params for API.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+        '''
         response = requests.get(url, headers=headers, params=params)
         if response.status_code == 200:
             return response.json()
@@ -29,43 +39,47 @@ class APIStuff:
             return None
     
 class RedisStuff:
-    """
-    A class for handling Redis.
-    Attributes:
-    - host (str): host name for connecting to Redis.
-    - port (int): port number for connecting to Redis.
-    - password (str): password for connecting to Redis.
-    """
     def __init__(self, host, port, password):
         self.r = redis.StrictRedis(host=host, port=port, password=password) 
     def set_json(self, key, data):
-        """
-        Sets JSON data to RedisJSON.
-        Parameters:
-        - key (bytes): key for the data dictionary.
-        - data (dict): data dictionary holding API data.
-        """
+        '''
+        Parameters
+        ----------
+        key : byte
+            key for dictionary.
+        data : dict
+            Dictionary of data.
+
+        Returns
+        -------
+        None.
+        '''
         json_data = json.dumps(data)
         self.r.set(key, json_data)
     def get_json(self, key):
-        """
-        Gets JSON data from RedisJSON.
-        Parameters:
-        - key (bytes): key for the data dictionary.
-        Returns:
-        If the json_data exists, return the JSON data to a data dictionary. 
-        """
+        '''
+        Parameters
+        ----------
+        key : byte
+            keys in Redis.
+
+        Returns
+        -------
+        string
+            Data from Redis
+        '''
         json_data = self.r.get(key)
         if json_data is not None:
             return json.loads(json_data)
         else:
             return None
     def get_keys(self):
-        """
-        Gets keys from RedisJSON.
-        Returns:
-        If the json_data exists, return the JSON data to a data dictionary. 
-        """
+        '''
+        Returns
+        -------
+        byte
+            keys in Redis.
+        '''
         return self.r.keys()
     
 if __name__ == "__main__":

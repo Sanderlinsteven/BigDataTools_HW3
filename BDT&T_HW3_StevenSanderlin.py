@@ -77,14 +77,6 @@ if __name__ == "__main__":
     data_dict = {}
     api_client = APIStuff(url)
     
-    #Create params and call API
-    if len(data_dict) == 0:
-        for year in range(2020,2024):
-            for month in range(1,12):
-                tempmonth = f'{month:02}'
-                params = {'date' : str(year) + '-' + tempmonth + '-01'}
-                data_dict[str(year) + '-' + tempmonth + '-01'] = api_client.get_data(headers,params)
-                
     #Redis info
     host = 'redis-11079.c325.us-east-1-4.ec2.cloud.redislabs.com'
     port = 11079
@@ -92,19 +84,21 @@ if __name__ == "__main__":
     redis_dict = {}
     redis_client = RedisStuff(host, port, password)
     
-    #For each thing in data_dict, if the data exists load it into Redis
-    for thing in data_dict: 
-        data = data_dict[thing]['data']
-        if len(data) != 0:
-            print(thing)
-            redis_client.set_json(thing, data)
+    #Create params and call API
+    for year in range(2020,2024):
+        for month in range(1,12):
+            params = {'date' : str(year) + '-' + f'{month:02}' + '-01'}
+            data_dict[str(year) + '-' + f'{month:02}' + '-01'] = api_client.get_data(headers,params)
             
-    #Grab list of keys
-    key_list = redis_client.get_keys() 
+    #Remove empty data objects from the data dictionary
+    data_dict = {key: value for key, value in data_dict.items() if len(value['data']) > 0}
+    
+    #For each thing in data_dict, if the data exists load it into Redis
+    for item in data_dict:
+        redis_client.set_json(item, data_dict[item]['data'])
     
     #For each key, grab the data from Redis
-    for key in key_list: 
-        print(key)
+    for key in redis_client.get_keys(): 
         redis_dict[key] = redis_client.get_json(key)
 
     #Set up data for analysis

@@ -45,7 +45,7 @@ class RedisStuff:
         '''
         Parameters
         ----------
-        key : byte
+        key : str
             key for dictionary.
         data : dict
             Dictionary of data.
@@ -55,7 +55,7 @@ class RedisStuff:
         None.
         '''
         json_data = json.dumps(data)
-        self.r.set(key, json_data)
+        self.r.json().set(key, '.', json_data)
     def get_json(self, key):
         '''
         Parameters
@@ -68,7 +68,7 @@ class RedisStuff:
         string
             Data from Redis
         '''
-        json_data = self.r.get(key)
+        json_data = self.r.json().get(key)
         if json_data is not None:
             return json.loads(json_data)
         else:
@@ -108,7 +108,8 @@ if __name__ == "__main__":
     data_dict = {key: value for key, value in data_dict.items() if len(value['data']) > 0}
     
     #For each thing in data_dict, if the data exists load it into Redis
-    for item in data_dict:
+    for item in list(data_dict.keys()):
+        print('data')
         redis_client.set_json(item, data_dict[item]['data'])
     
     #For each key, grab the data from Redis
